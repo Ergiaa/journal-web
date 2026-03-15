@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
 interface JournalDetailProps {
@@ -78,7 +79,7 @@ export function JournalDetail({ id }: JournalDetailProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Published</span>
-            <span>{journal.publishedDate}</span>
+            <span>{formatDate(journal.publishedDate)}</span>
           </div>
           {journal.doi && (
             <div className="flex justify-between">

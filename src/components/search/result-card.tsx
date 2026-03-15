@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatDate } from '@/lib/utils'
 import type { Journal } from '@/types/journal'
 
 interface ResultCardProps {
@@ -34,7 +35,7 @@ export function ResultCard({ journal }: ResultCardProps) {
           </div>
         </Link>
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-          <span>{journal.journal} • {journal.publishedDate}</span>
+          <span>{journal.journal} • {formatDate(journal.publishedDate)}</span>
           <a
             href={journal.sourceUrl}
             target="_blank"
