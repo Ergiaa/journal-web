@@ -526,7 +526,7 @@ export function searchMockJournals(params: SearchParams): SearchResult {
   const lowerQuery = q.toLowerCase()
 
   // 1. Text search
-  let filtered = mockJournals.filter((journal) => {
+  let baseFiltered = mockJournals.filter((journal) => {
     if (!q) return true
     return (
       journal.title.toLowerCase().includes(lowerQuery) ||
@@ -537,29 +537,16 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     )
   })
 
-  // 2. Author filter
+  // 2. Base filters (Author, Year)
   if (authorFilter) {
     const lowerAuthor = authorFilter.toLowerCase()
-    filtered = filtered.filter((j) =>
+    baseFiltered = baseFiltered.filter((j) =>
       j.authors.some((a) => a.toLowerCase().includes(lowerAuthor))
     )
   }
 
-  // 3. Journal filter (multi-select)
-  if (journalFilter && journalFilter.length > 0) {
-    filtered = filtered.filter((j) => journalFilter.includes(j.journal))
-  }
-
-  // 4. Keyword filter (multi-select)
-  if (keywordFilter && keywordFilter.length > 0) {
-    filtered = filtered.filter((j) =>
-      j.keywords?.some((k) => keywordFilter.includes(k))
-    )
-  }
-
-  // 5. Year range filter
   if (yearFrom !== undefined || yearTo !== undefined) {
-    filtered = filtered.filter((j) => {
+    baseFiltered = baseFiltered.filter((j) => {
       const year = parseInt(j.publishedDate.slice(0, 4))
       if (yearFrom !== undefined && year < yearFrom) return false
       if (yearTo !== undefined && year > yearTo) return false
@@ -567,12 +554,46 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     })
   }
 
-  // 6. Compute facets from the full filtered set (before pagination)
-  const facets = computeFacets(filtered)
+  // 3. Independent filter sets for facets
+  // To show other journal options even when one is selected, we compute the journal
+  // facet based on all filters EXCEPT the journal filter itself.
+  const journalFacetSet = baseFiltered.filter((j) => {
+    if (keywordFilter && keywordFilter.length > 0) {
+      return j.keywords?.some((k) => keywordFilter.includes(k))
+    }
+    return true
+  })
 
-  // 7. Sort
+  // Same for keywords: compute based on all filters EXCEPT the keyword filter.
+  const keywordFacetSet = baseFiltered.filter((j) => {
+    if (journalFilter && journalFilter.length > 0) {
+      return journalFilter.includes(j.journal)
+    }
+    return true
+  })
+
+  // 4. Final fully-filtered set for the actual search results
+  let finalFiltered = journalFacetSet.filter((j) => {
+    // apply journal filter to the journalFacetSet to get the fully filtered set
+    if (journalFilter && journalFilter.length > 0) {
+      return journalFilter.includes(j.journal)
+    }
+    return true
+  })
+
+  // 5. Compute facets independently
+  const facets = {
+    // Authors and years are single-select or range, so we use the final filtered set
+    authors: computeFacets(finalFiltered).authors,
+    years: computeFacets(finalFiltered).years,
+    // Multi-select facets use their independent sets
+    journals: computeFacets(journalFacetSet).journals,
+    keywords: computeFacets(keywordFacetSet).keywords,
+  }
+
+  // 6. Sort
   if (sortBy !== 'relevance') {
-    filtered = [...filtered].sort((a, b) => {
+    finalFiltered = [...finalFiltered].sort((a, b) => {
       switch (sortBy) {
         case 'date_desc':
           return b.publishedDate.localeCompare(a.publishedDate)
@@ -588,13 +609,13 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     })
   }
 
-  // 8. Paginate
+  // 7. Paginate
   const start = (page - 1) * pageSize
-  const paginatedJournals = filtered.slice(start, start + pageSize)
+  const paginatedJournals = finalFiltered.slice(start, start + pageSize)
 
   return {
     journals: paginatedJournals,
-    total: filtered.length,
+    total: finalFiltered.length,
     page,
     pageSize,
     facets,
