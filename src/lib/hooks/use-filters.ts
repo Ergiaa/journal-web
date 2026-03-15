@@ -7,6 +7,7 @@ import type { SortBy } from '@/types/journal'
 export interface FilterState {
   authorFilter: string
   journalFilter: string[]
+  keywordFilter: string[]
   yearFrom: number
   yearTo: number
   sortBy: SortBy
@@ -21,6 +22,7 @@ export function useFilters() {
 
   const authorFilter = searchParams.get('author') ?? ''
   const journalFilter = searchParams.getAll('journal')
+  const keywordFilter = searchParams.getAll('keyword')
   const yearFrom = searchParams.get('yearFrom') ? parseInt(searchParams.get('yearFrom')!) : YEAR_MIN
   const yearTo = searchParams.get('yearTo') ? parseInt(searchParams.get('yearTo')!) : YEAR_MAX
   const sortBy = (searchParams.get('sortBy') as SortBy) ?? 'relevance'
@@ -28,13 +30,13 @@ export function useFilters() {
   const activeFilterCount = [
     authorFilter ? 1 : 0,
     journalFilter.length > 0 ? 1 : 0,
+    keywordFilter.length > 0 ? 1 : 0,
     yearFrom !== YEAR_MIN || yearTo !== YEAR_MAX ? 1 : 0,
   ].reduce((a, b) => a + b, 0)
 
   const updateParams = useCallback(
     (updates: Record<string, string | string[] | null>) => {
       const params = new URLSearchParams(searchParams.toString())
-      // Reset to page 1 on any filter change
       params.set('page', '1')
 
       for (const [key, value] of Object.entries(updates)) {
@@ -65,6 +67,11 @@ export function useFilters() {
     [updateParams]
   )
 
+  const setKeywordFilter = useCallback(
+    (values: string[]) => updateParams({ keyword: values }),
+    [updateParams]
+  )
+
   const setYearRange = useCallback(
     (from: number, to: number) => {
       const updates: Record<string, string | null> = {}
@@ -84,6 +91,7 @@ export function useFilters() {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('author')
     params.delete('journal')
+    params.delete('keyword')
     params.delete('yearFrom')
     params.delete('yearTo')
     params.set('page', '1')
@@ -91,20 +99,19 @@ export function useFilters() {
   }, [router, searchParams])
 
   return {
-    // State
     authorFilter,
     journalFilter,
+    keywordFilter,
     yearFrom,
     yearTo,
     sortBy,
     activeFilterCount,
-    // Actions
     setAuthorFilter,
     setJournalFilter,
+    setKeywordFilter,
     setYearRange,
     setSortBy,
     clearAllFilters,
-    // Constants
     YEAR_MIN,
     YEAR_MAX,
   }

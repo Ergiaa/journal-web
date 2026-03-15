@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
+
 interface DateRangeFilterProps {
   yearFrom: number
   yearTo: number
@@ -8,6 +10,8 @@ interface DateRangeFilterProps {
   onYearRangeChange: (from: number, to: number) => void
 }
 
+const DEBOUNCE_MS = 500
+
 export function DateRangeFilter({
   yearFrom,
   yearTo,
@@ -15,42 +19,70 @@ export function DateRangeFilter({
   yearMax,
   onYearRangeChange,
 }: DateRangeFilterProps) {
+  const [localFrom, setLocalFrom] = useState(yearFrom)
+  const [localTo, setLocalTo] = useState(yearTo)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Sync external values into local state (e.g. on clear all)
+  useEffect(() => {
+    setLocalFrom(yearFrom)
+    setLocalTo(yearTo)
+  }, [yearFrom, yearTo])
+
+  // Debounced callback
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = setTimeout(() => {
+      // Only trigger if values actually changed from the external props
+      if (localFrom !== yearFrom || localTo !== yearTo) {
+        onYearRangeChange(localFrom, localTo)
+      }
+    }, DEBOUNCE_MS)
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [localFrom, localTo, onYearRangeChange, yearFrom, yearTo])
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{yearFrom}</span>
-        <span>{yearTo}</span>
+        <span>{localFrom}</span>
+        <span>{localTo}</span>
       </div>
 
-      {/* From slider */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">From</label>
         <input
           type="range"
           min={yearMin}
           max={yearMax}
-          value={yearFrom}
+          value={localFrom}
           onChange={(e) => {
             const val = parseInt(e.target.value)
-            onYearRangeChange(Math.min(val, yearTo), yearTo)
+            setLocalFrom(Math.min(val, localTo))
           }}
-          className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-foreground"
+          className="w-full cursor-pointer"
         />
       </div>
 
-      {/* To slider */}
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">To</label>
         <input
           type="range"
           min={yearMin}
           max={yearMax}
-          value={yearTo}
+          value={localTo}
           onChange={(e) => {
             const val = parseInt(e.target.value)
-            onYearRangeChange(yearFrom, Math.max(val, yearFrom))
+            setLocalTo(Math.max(val, localFrom))
           }}
-          className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-foreground"
+          className="w-full cursor-pointer"
         />
       </div>
     </div>

@@ -517,6 +517,7 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     pageSize = 10,
     authorFilter,
     journalFilter,
+    keywordFilter,
     yearFrom,
     yearTo,
     sortBy = 'relevance',
@@ -549,7 +550,14 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     filtered = filtered.filter((j) => journalFilter.includes(j.journal))
   }
 
-  // 4. Year range filter
+  // 4. Keyword filter (multi-select)
+  if (keywordFilter && keywordFilter.length > 0) {
+    filtered = filtered.filter((j) =>
+      j.keywords?.some((k) => keywordFilter.includes(k))
+    )
+  }
+
+  // 5. Year range filter
   if (yearFrom !== undefined || yearTo !== undefined) {
     filtered = filtered.filter((j) => {
       const year = parseInt(j.publishedDate.slice(0, 4))
@@ -559,10 +567,10 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     })
   }
 
-  // 5. Compute facets from the full filtered set (before pagination)
+  // 6. Compute facets from the full filtered set (before pagination)
   const facets = computeFacets(filtered)
 
-  // 6. Sort
+  // 7. Sort
   if (sortBy !== 'relevance') {
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -580,7 +588,7 @@ export function searchMockJournals(params: SearchParams): SearchResult {
     })
   }
 
-  // 7. Paginate
+  // 8. Paginate
   const start = (page - 1) * pageSize
   const paginatedJournals = filtered.slice(start, start + pageSize)
 

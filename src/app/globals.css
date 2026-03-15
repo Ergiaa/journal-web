@@ -126,4 +126,46 @@
   html {
     @apply font-sans;
   }
+
+  /* Range input (slider) track & thumb styling */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--border);
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--border);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--foreground);
+    margin-top: -5px; /* center thumb on track: (16 - 6) / 2 */
+    cursor: pointer;
+    border: 2px solid var(--background);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--foreground);
+    cursor: pointer;
+    border: 2px solid var(--background);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
 }

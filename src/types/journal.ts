@@ -19,6 +19,7 @@ export interface SearchParams {
   // Filters
   authorFilter?: string
   journalFilter?: string[]
+  keywordFilter?: string[]
   yearFrom?: number
   yearTo?: number
   // Sorting

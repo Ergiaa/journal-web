@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { DateRangeFilter } from './filters/date-range-filter'
 import { AuthorFilter } from './filters/author-filter'
-import { JournalFilter } from './filters/journal-filter'
 import { FacetList } from './facets/facet-list'
 import type { Facets } from '@/types/journal'
 import { useFilters } from '@/lib/hooks/use-filters'
@@ -23,11 +22,13 @@ function FilterContent({
   const {
     authorFilter,
     journalFilter,
+    keywordFilter,
     yearFrom,
     yearTo,
     activeFilterCount,
     setAuthorFilter,
     setJournalFilter,
+    setKeywordFilter,
     setYearRange,
     clearAllFilters,
     YEAR_MIN,
@@ -36,7 +37,6 @@ function FilterContent({
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold">Filters</span>
         {activeFilterCount > 0 && (
@@ -52,7 +52,6 @@ function FilterContent({
 
       <Separator />
 
-      {/* Publication Year */}
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Publication Year
@@ -68,7 +67,6 @@ function FilterContent({
 
       <Separator />
 
-      {/* Author */}
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Author
@@ -78,7 +76,6 @@ function FilterContent({
 
       <Separator />
 
-      {/* Journals — use facets if available, otherwise fall back to availableJournals */}
       {facets && facets.journals.length > 0 ? (
         <FacetList
           title="Journal"
@@ -91,29 +88,25 @@ function FilterContent({
               setJournalFilter([...journalFilter, value])
             }
           }}
+          searchable
         />
-      ) : (
-        <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Journal
-          </p>
-          <JournalFilter
-            available={availableJournals}
-            selected={journalFilter}
-            onChange={setJournalFilter}
-          />
-        </div>
-      )}
+      ) : null}
 
-      {/* Keyword facets */}
       {facets && facets.keywords.length > 0 && (
         <>
           <Separator />
           <FacetList
             title="Keywords"
             items={facets.keywords}
-            selectedValues={[]}
-            onToggle={() => {}}
+            selectedValues={keywordFilter}
+            onToggle={(value) => {
+              if (keywordFilter.includes(value)) {
+                setKeywordFilter(keywordFilter.filter((k) => k !== value))
+              } else {
+                setKeywordFilter([...keywordFilter, value])
+              }
+            }}
+            searchable
           />
         </>
       )}
@@ -127,7 +120,6 @@ export function FilterPanel({ facets, availableJournals }: FilterPanelProps) {
 
   return (
     <>
-      {/* Mobile: collapsible dropdown trigger */}
       <div className="lg:hidden">
         <Button
           variant="outline"
@@ -158,7 +150,6 @@ export function FilterPanel({ facets, availableJournals }: FilterPanelProps) {
         )}
       </div>
 
-      {/* Desktop: sticky left sidebar */}
       <div className="hidden lg:block w-56 shrink-0">
         <div className="sticky top-6 rounded-lg border bg-card p-4">
           <FilterContent facets={facets} availableJournals={availableJournals} />

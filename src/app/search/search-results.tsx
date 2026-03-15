@@ -24,7 +24,7 @@ const ALL_JOURNALS = Array.from(new Set(getMockJournals().map((j) => j.journal))
 export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { authorFilter, journalFilter, yearFrom, yearTo, sortBy, YEAR_MIN, YEAR_MAX } = useFilters()
+  const { authorFilter, journalFilter, keywordFilter, yearFrom, yearTo, sortBy, YEAR_MIN, YEAR_MAX } = useFilters()
 
   const hasYearFilter = yearFrom !== YEAR_MIN || yearTo !== YEAR_MAX
 
@@ -34,6 +34,7 @@ export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
     pageSize,
     authorFilter: authorFilter || undefined,
     journalFilter: journalFilter.length > 0 ? journalFilter : undefined,
+    keywordFilter: keywordFilter.length > 0 ? keywordFilter : undefined,
     yearFrom: hasYearFilter ? yearFrom : undefined,
     yearTo: hasYearFilter ? yearTo : undefined,
     sortBy,

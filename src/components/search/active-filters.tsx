@@ -7,10 +7,12 @@ export function ActiveFilters() {
   const {
     authorFilter,
     journalFilter,
+    keywordFilter,
     yearFrom,
     yearTo,
     setAuthorFilter,
     setJournalFilter,
+    setKeywordFilter,
     setYearRange,
     YEAR_MIN,
     YEAR_MAX,
@@ -37,6 +39,13 @@ export function ActiveFilters() {
     chips.push({
       label: journal,
       onRemove: () => setJournalFilter(journalFilter.filter((j) => j !== journal)),
+    })
+  }
+
+  for (const keyword of keywordFilter) {
+    chips.push({
+      label: keyword,
+      onRemove: () => setKeywordFilter(keywordFilter.filter((k) => k !== keyword)),
     })
   }
 
