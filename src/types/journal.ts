@@ -10,15 +10,37 @@ export interface Journal {
   sourceUrl: string
 }
 
-export interface SearchResult {
-  journals: Journal[]
-  total: number
-  page: number
-  pageSize: number
-}
+export type SortBy = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'author_asc'
 
 export interface SearchParams {
   q?: string
   page?: number
   pageSize?: number
+  // Filters
+  authorFilter?: string
+  journalFilter?: string[]
+  yearFrom?: number
+  yearTo?: number
+  // Sorting
+  sortBy?: SortBy
+}
+
+export interface FacetItem {
+  value: string
+  count: number
+}
+
+export interface Facets {
+  journals: FacetItem[]
+  authors: FacetItem[]
+  years: FacetItem[]
+  keywords: FacetItem[]
+}
+
+export interface SearchResult {
+  journals: Journal[]
+  total: number
+  page: number
+  pageSize: number
+  facets: Facets
 }

@@ -5,7 +5,7 @@ export async function searchJournals(
   params: SearchParams
 ): Promise<SearchResult> {
   await new Promise((resolve) => setTimeout(resolve, 300))
-  return searchMockJournals(params.q || '', params.page || 1, params.pageSize || 10)
+  return searchMockJournals(params)
 }
 
 export async function getJournal(id: string): Promise<Journal> {
