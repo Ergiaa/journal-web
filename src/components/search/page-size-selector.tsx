@@ -10,8 +10,9 @@ interface PageSizeSelectorProps {
 export function PageSizeSelector({ pageSize, onPageSizeChange }: PageSizeSelectorProps) {
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      <span>Show</span>
+      <label htmlFor="page-size-selector">Show</label>
       <select
+        id="page-size-selector"
         value={pageSize}
         onChange={(e) => onPageSizeChange(Number(e.target.value))}
         className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"

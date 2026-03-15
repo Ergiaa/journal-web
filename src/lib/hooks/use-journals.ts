@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { searchJournals, getJournal, getRelatedJournals } from '@/lib/api/journals'
+import { searchJournals, getJournal, getRelatedJournals, getAvailableJournals } from '@/lib/api/journals'
 import type { SearchParams } from '@/types/journal'
 
 export function useSearchJournals(params: SearchParams) {
@@ -25,5 +25,12 @@ export function useRelatedJournals(id: string) {
     queryKey: ['journals', 'related', id],
     queryFn: () => getRelatedJournals(id),
     enabled: !!id,
+  })
+}
+
+export function useAvailableJournals() {
+  return useQuery({
+    queryKey: ['journals', 'available'],
+    queryFn: getAvailableJournals,
   })
 }

@@ -29,6 +29,12 @@ export function DateRangeFilter({
     setLocalTo(yearTo)
   }, [yearFrom, yearTo])
 
+  // Keep latest callback in ref to avoid stale closures
+  const callbackRef = useRef(onYearRangeChange)
+  useEffect(() => {
+    callbackRef.current = onYearRangeChange
+  }, [onYearRangeChange])
+
   // Debounced callback
   useEffect(() => {
     if (debounceRef.current) {
@@ -38,7 +44,7 @@ export function DateRangeFilter({
     debounceRef.current = setTimeout(() => {
       // Only trigger if values actually changed from the external props
       if (localFrom !== yearFrom || localTo !== yearTo) {
-        onYearRangeChange(localFrom, localTo)
+        callbackRef.current(localFrom, localTo)
       }
     }, DEBOUNCE_MS)
 
@@ -47,7 +53,7 @@ export function DateRangeFilter({
         clearTimeout(debounceRef.current)
       }
     }
-  }, [localFrom, localTo, onYearRangeChange, yearFrom, yearTo])
+  }, [localFrom, localTo, yearFrom, yearTo])
 
   return (
     <div className="space-y-3">

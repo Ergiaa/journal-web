@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import { SearchBar } from '@/components/search/search-bar'
 import { SearchResults } from './search-results'
 
@@ -6,6 +7,22 @@ interface SearchPageProps {
   searchParams: Promise<{ q?: string; page?: string; pageSize?: string }>
 }
 
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams
+  const query = params.q
+
+  if (!query) {
+    return {
+      title: 'Search Journals - Journal Search',
+      description: 'Search for academic journals, articles, and publications.',
+    }
+  }
+
+  return {
+    title: `Search results for "${query}" - Journal Search`,
+    description: `Find academic journals and articles related to ${query}.`,
+  }
+}
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
   const query = params.q || ''

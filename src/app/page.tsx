@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { SearchBar } from '@/components/search/search-bar'
 
 export default function Home() {
@@ -9,7 +10,9 @@ export default function Home() {
           Search and discover academic journals from our comprehensive database
         </p>
       </div>
-      <SearchBar />
+      <Suspense fallback={<div className="h-10 w-full max-w-2xl bg-muted rounded-md animate-pulse" />}>
+        <SearchBar />
+      </Suspense>
     </div>
   )
 }

@@ -16,8 +16,9 @@ export function SortDropdown() {
 
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      <span className="shrink-0">Sort by</span>
+      <label htmlFor="sort-dropdown" className="shrink-0">Sort by</label>
       <select
+        id="sort-dropdown"
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value as SortBy)}
         className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"

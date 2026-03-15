@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useSearchJournals } from '@/lib/hooks/use-journals'
+import { useSearchJournals, useAvailableJournals } from '@/lib/hooks/use-journals'
 import { useFilters } from '@/lib/hooks/use-filters'
 import { ResultCard } from '@/components/search/result-card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -10,7 +10,6 @@ import { PageSizeSelector } from '@/components/search/page-size-selector'
 import { SortDropdown } from '@/components/search/sort-dropdown'
 import { FilterPanel } from '@/components/search/filter-panel'
 import { ActiveFilters } from '@/components/search/active-filters'
-import { getMockJournals } from '@/lib/api/mock-data'
 
 interface SearchResultsProps {
   query: string
@@ -18,15 +17,15 @@ interface SearchResultsProps {
   pageSize: number
 }
 
-// Static list of all journal names for the journal filter
-const ALL_JOURNALS = Array.from(new Set(getMockJournals().map((j) => j.journal))).sort()
-
 export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { authorFilter, journalFilter, keywordFilter, yearFrom, yearTo, sortBy, YEAR_MIN, YEAR_MAX } = useFilters()
 
   const hasYearFilter = yearFrom !== YEAR_MIN || yearTo !== YEAR_MAX
+
+  const { data: availableJournalsData } = useAvailableJournals()
+  const availableJournals = availableJournalsData || []
 
   const { data, isLoading, error } = useSearchJournals({
     q: query,
@@ -140,7 +139,7 @@ export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
       {/* Sidebar filters */}
       <FilterPanel
         facets={data?.facets}
-        availableJournals={ALL_JOURNALS}
+        availableJournals={availableJournals}
       />
 
       {/* Main results column */}

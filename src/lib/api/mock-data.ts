@@ -618,3 +618,7 @@ export function getMockRelatedJournals(id: string): Journal[] {
     })
     .slice(0, 5)
 }
+
+export function getMockAvailableJournals(): string[] {
+  return Array.from(new Set(mockJournals.map((j) => j.journal))).sort()
+}

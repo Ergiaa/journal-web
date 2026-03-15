@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -12,11 +12,17 @@ interface SearchBarProps {
 export function SearchBar({ defaultValue = '' }: SearchBarProps) {
   const [query, setQuery] = useState(defaultValue)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+      // Preserve existing filters, but update 'q' and clear 'page'
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('q', query.trim())
+      params.delete('page') // Reset to page 1 on new search
+      
+      router.push(`/search?${params.toString()}`)
     }
   }
 

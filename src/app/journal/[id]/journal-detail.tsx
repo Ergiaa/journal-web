@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useJournal, useRelatedJournals } from '@/lib/hooks/use-journals'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -12,6 +13,7 @@ interface JournalDetailProps {
 }
 
 export function JournalDetail({ id }: JournalDetailProps) {
+  const router = useRouter()
   const { data: journal, isLoading, error } = useJournal(id)
   const { data: related } = useRelatedJournals(id)
 
@@ -29,9 +31,9 @@ export function JournalDetail({ id }: JournalDetailProps) {
     return (
       <div className="text-center py-12">
         <p className="text-destructive">Error loading journal</p>
-        <Link href="/search" className="text-primary hover:underline">
+        <button onClick={() => router.back()} className="text-primary hover:underline">
           Back to search
-        </Link>
+        </button>
       </div>
     )
   }
@@ -39,9 +41,9 @@ export function JournalDetail({ id }: JournalDetailProps) {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <Link href="/search" className="text-sm text-muted-foreground hover:underline">
+        <button onClick={() => router.back()} className="text-sm text-muted-foreground hover:underline">
           ← Back to search
-        </Link>
+        </button>
         <h1 className="text-3xl font-bold mt-4">{journal.title}</h1>
         <div className="flex flex-wrap gap-2 mt-4">
           {journal.authors.map((author) => (
