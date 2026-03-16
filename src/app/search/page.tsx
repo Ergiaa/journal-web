@@ -32,7 +32,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <SearchBar defaultValue={query} />
+        <div className="relative bg-background rounded-lg border shadow-sm">
+          <SearchBar defaultValue={query} />
+        </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <SearchResults query={query} page={page} pageSize={pageSize} />
