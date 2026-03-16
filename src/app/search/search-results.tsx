@@ -20,7 +20,7 @@ interface SearchResultsProps {
 export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { authorFilter, journalFilter, keywordFilter, yearFrom, yearTo, sortBy, YEAR_MIN, YEAR_MAX } = useFilters()
+  const { authorFilter, journalFilter, keywordFilter, yearFrom, yearTo, sortBy, activeFilterCount, clearAllFilters, YEAR_MIN, YEAR_MAX } = useFilters()
 
   const hasYearFilter = yearFrom !== YEAR_MIN || yearTo !== YEAR_MAX
 
@@ -88,10 +88,26 @@ export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
     }
 
     if (!data?.journals.length) {
+      const hasActiveFilters = activeFilterCount > 0
       return (
-        <p className="text-center text-muted-foreground">
-          No results found for &quot;{query}&quot;
-        </p>
+        <div className="space-y-4">
+          <ActiveFilters />
+          <div className="text-center text-muted-foreground space-y-2">
+            <p>No results found for &quot;{query}&quot;</p>
+            {hasActiveFilters && (
+              <p className="text-sm">
+                Try{' '}
+                <button
+                  onClick={clearAllFilters}
+                  className="text-primary hover:underline"
+                >
+                  clearing your filters
+                </button>
+                .
+              </p>
+            )}
+          </div>
+        </div>
       )
     }
 
