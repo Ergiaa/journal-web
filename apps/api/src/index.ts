@@ -1,4 +1,6 @@
 import { Elysia } from 'elysia'
+import { cors } from '@elysiajs/cors'
+import { papersRoutes, journalsRoutes } from './routes/papers'
 
 // Health check route
 const healthRoutes = new Elysia({ prefix: '/health' })
@@ -14,7 +16,13 @@ const healthRoutes = new Elysia({ prefix: '/health' })
 
 // Main app
 const app = new Elysia()
+  .use(cors({
+    origin: ['http://localhost:3000'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+  }))
   .use(healthRoutes)
+  .use(papersRoutes)
+  .use(journalsRoutes)
   .get('/', () => 'Journal Web API is running!')
   .listen(3001)
 

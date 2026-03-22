@@ -3,6 +3,7 @@
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
