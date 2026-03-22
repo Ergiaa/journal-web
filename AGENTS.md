@@ -10,6 +10,14 @@ bun run dev
 bun run dev:api    # API only
 bun run dev:web    # Next.js only
 
+# Infrastructure (PostgreSQL + Redis)
+bun run infra:up      # Start dev services
+bun run infra:down    # Stop dev services
+bun run infra:logs    # View service logs
+bun run infra:ps      # Check service status
+bun run infra:restart # Restart all services
+bun run infra:clean   # Stop and remove volumes (⚠️ data loss)
+
 # Build all packages
 bun run build
 
@@ -23,27 +31,34 @@ bun run typecheck  # TypeScript check all packages
 ## Project Structure
 
 ```
+docker-compose.dev.yml    # Dev infrastructure (Postgres + Redis)
+docker-compose.prod.yml   # Production stack (all services)
+.env.example              # Environment variables template
 apps/
-  api/           # Elysia backend (port 3001)
+  api/                    # Elysia backend (port 3001)
+    .env.example          # API environment template
+    Dockerfile            # Production build
     src/
-      index.ts   # Main server + type exports for Eden Treaty
-      routes/    # API routes
-      data/      # Mock data layer
-      types.ts   # Shared types
-  web/           # Next.js 16 frontend (port 3000)
+      index.ts            # Main server + type exports for Eden Treaty
+      routes/             # API routes
+      data/               # Mock data layer
+      types.ts            # Shared types
+  web/                    # Next.js 16 frontend (port 3000)
+    .env.example          # Web environment template
+    Dockerfile            # Production build
     src/
-      app/       # App Router (RSC by default)
+      app/                # App Router (RSC by default)
       components/
-        search/  # Search-related components
-        ui/      # shadcn/ui components
-        layout/  # Header, Footer, etc.
+        search/           # Search-related components
+        ui/               # shadcn/ui components
+        layout/           # Header, Footer, etc.
       lib/
-        api/     # Eden Treaty client + API wrappers
-        hooks/   # React Query hooks
-      types/     # TypeScript types
+        api/              # Eden Treaty client + API wrappers
+        hooks/            # React Query hooks
+      types/              # TypeScript types
 packages/
-  crawler/       # (Empty) Crawlee spiders
-  workers/      # (Empty) BullMQ workers
+  crawler/                # (Empty) Crawlee spiders
+  workers/                # (Empty) BullMQ workers
 ```
 
 ## Code Style Guidelines
