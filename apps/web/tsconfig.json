@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "journal-web-api/src": ["../api/src/index.ts"]
     }
   },
   "include": [
