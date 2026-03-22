@@ -87,7 +87,7 @@ export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
       )
     }
 
-    if (!data?.journals.length) {
+    if (!data?.papers.length) {
       const hasActiveFilters = activeFilterCount > 0
       return (
         <div className="space-y-4">
@@ -132,8 +132,8 @@ export function SearchResults({ query, page, pageSize }: SearchResultsProps) {
 
         {/* Result list */}
         <div className="grid gap-4">
-          {data.journals.map((journal) => (
-            <ResultCard key={journal.id} journal={journal} />
+          {data.papers.map((paper) => (
+            <ResultCard key={paper.id} journal={paper} />
           ))}
         </div>
 

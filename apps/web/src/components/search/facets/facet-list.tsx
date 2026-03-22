@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { FacetItem } from './facet-item'
-import type { FacetItem as FacetItemType } from '@/types/journal'
+import type { FacetItem as FacetItemType } from 'journal-web-api/src/types'
 
 const DEFAULT_VISIBLE = 5
 

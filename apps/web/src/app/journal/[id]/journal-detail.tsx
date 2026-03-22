@@ -79,7 +79,7 @@ export function JournalDetail({ id }: JournalDetailProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Published</span>
-            <span>{formatDate(journal.publishedDate)}</span>
+            <span>{formatDate(journal.publishedAt)}</span>
           </div>
           {journal.doi && (
             <div className="flex justify-between">

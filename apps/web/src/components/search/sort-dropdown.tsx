@@ -1,7 +1,7 @@
 'use client'
 
 import { useFilters } from '@/lib/hooks/use-filters'
-import type { SortBy } from '@/types/journal'
+import type { SortBy } from 'journal-web-api/src/types'
 
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: 'relevance', label: 'Relevance' },

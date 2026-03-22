@@ -1,5 +1,7 @@
 import { api } from './client'
-import type { Journal, SearchResult, SearchParams } from '@/types/journal'
+import type { Paper, SearchParams, SearchResult } from 'journal-web-api/src/types'
+
+export type { Paper, SearchParams, SearchResult }
 
 export async function searchJournals(
   params: SearchParams
@@ -7,58 +9,68 @@ export async function searchJournals(
   const { data, error } = await api.api.papers.get({
     query: {
       q: params.q,
-      page: params.page?.toString(),
-      pageSize: params.pageSize?.toString(),
+      page: params.page,
+      pageSize: params.pageSize,
       author: params.authorFilter,
       journal: params.journalFilter,
       keyword: params.keywordFilter,
-      yearFrom: params.yearFrom?.toString(),
-      yearTo: params.yearTo?.toString(),
+      yearFrom: params.yearFrom,
+      yearTo: params.yearTo,
       sortBy: params.sortBy,
     },
   })
-  
+
   if (error) {
-    throw new Error('Failed to search journals')
+    throw new Error(`Failed to search papers: ${JSON.stringify(error.value)}`)
   }
-  
-  return data as SearchResult
+
+  return data
 }
 
-export async function getJournal(id: string): Promise<Journal> {
+export async function getPaper(id: string): Promise<Paper> {
   const { data, error } = await api.api.papers({ id }).get()
-  
+
   if (error) {
-    throw new Error('Journal not found')
+    const msg = 'value' in error && error.value && typeof error.value === 'object' && 'error' in error.value
+      ? String((error.value as { error: unknown }).error)
+      : JSON.stringify(error.value)
+    throw new Error(`Failed to get paper: ${msg}`)
   }
-  
+
   if (data && typeof data === 'object' && 'error' in data) {
     throw new Error(String(data.error))
   }
-  
-  return data as Journal
+
+  return data as Paper
 }
 
-export async function getRelatedJournals(id: string): Promise<Journal[]> {
+export async function getRelatedPapers(id: string): Promise<Paper[]> {
   const { data, error } = await api.api.papers({ id }).related.get()
-  
+
   if (error) {
-    throw new Error('Failed to get related journals')
+    const msg = 'value' in error && error.value && typeof error.value === 'object' && 'error' in error.value
+      ? String((error.value as { error: unknown }).error)
+      : JSON.stringify(error.value)
+    throw new Error(`Failed to get related papers: ${msg}`)
   }
-  
+
   if (data && typeof data === 'object' && 'error' in data) {
     throw new Error(String(data.error))
   }
-  
-  return data as Journal[]
+
+  return data as Paper[]
 }
 
 export async function getAvailableJournals(): Promise<string[]> {
   const { data, error } = await api.api.journals.get()
-  
+
   if (error) {
-    throw new Error('Failed to get available journals')
+    throw new Error(`Failed to get available journals: ${JSON.stringify(error.value)}`)
   }
-  
+
   return data as string[]
 }
+
+// Keep backwards-compatible aliases
+export const getJournal = getPaper
+export const getRelatedJournals = getRelatedPapers

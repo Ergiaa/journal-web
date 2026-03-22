@@ -1,18 +1,32 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
+import { sql } from 'drizzle-orm'
+import { db } from './config/database'
 import { papersRoutes, journalsRoutes } from './routes/papers'
+
+async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    await db.execute(sql`SELECT 1`)
+    return true
+  } catch {
+    return false
+  }
+}
 
 // Health check route
 const healthRoutes = new Elysia({ prefix: '/health' })
-  .get('/', () => ({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    services: {
-      database: 'disconnected',
-      redis: 'disconnected',
-      ml_service: 'disconnected'
+  .get('/', async () => {
+    const dbHealthy = await checkDatabaseConnection()
+    return {
+      status: dbHealthy ? 'healthy' : 'unhealthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: dbHealthy ? 'connected' : 'disconnected',
+        redis: 'disconnected',
+        ml_service: 'disconnected',
+      },
     }
-  }))
+  })
 
 // Main app
 const app = new Elysia()

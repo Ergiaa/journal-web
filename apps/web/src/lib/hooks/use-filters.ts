@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
-import type { SortBy } from '@/types/journal'
+import type { SortBy } from 'journal-web-api/src/types'
 
 export interface FilterState {
   authorFilter: string

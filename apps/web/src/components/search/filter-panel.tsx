@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator'
 import { DateRangeFilter } from './filters/date-range-filter'
 import { AuthorFilter } from './filters/author-filter'
 import { FacetList } from './facets/facet-list'
-import type { Facets } from '@/types/journal'
+import type { Facets } from 'journal-web-api/src/types'
 import { useFilters } from '@/lib/hooks/use-filters'
 
 interface FilterPanelProps {

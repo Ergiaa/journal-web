@@ -1,13 +1,18 @@
-export interface Journal {
+export interface Paper {
   id: string
   title: string
   abstract?: string
   authors: string[]
-  publishedDate: string
-  journal: string
+  publishedAt: string  // ISO 8601 date string
+  journal?: string
   doi?: string
   keywords?: string[]
   sourceUrl: string
+  source?: string
+  sourceId?: string
+  citationCount: number
+  embeddingStored: boolean
+  createdAt: string
 }
 
 export type SortBy = 'relevance' | 'date_desc' | 'date_asc' | 'title_asc' | 'author_asc'
@@ -16,13 +21,11 @@ export interface SearchParams {
   q?: string
   page?: number
   pageSize?: number
-  // Filters
   authorFilter?: string
   journalFilter?: string[]
   keywordFilter?: string[]
   yearFrom?: number
   yearTo?: number
-  // Sorting
   sortBy?: SortBy
 }
 
@@ -39,7 +42,7 @@ export interface Facets {
 }
 
 export interface SearchResult {
-  journals: Journal[]
+  papers: Paper[]
   total: number
   page: number
   pageSize: number

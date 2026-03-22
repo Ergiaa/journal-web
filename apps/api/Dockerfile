@@ -30,7 +30,7 @@ EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD bun run dist/index.js --health-check || exit 1
+  CMD wget --spider -q http://localhost:3001/health || exit 1
 
 # Start the application
 CMD ["bun", "run", "dist/index.js"]

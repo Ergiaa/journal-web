@@ -1,0 +1,1 @@
+export { papersService } from './papers'
