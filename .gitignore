@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 apps/web/.next/
 apps/*/node_modules/
+
+# agentic
+.agents/
