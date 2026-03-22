@@ -12,7 +12,13 @@
     "dev:web": "cd apps/web && bun run dev",
     "build": "bun run --filter '*' build",
     "lint": "bun run --filter '*' lint",
-    "typecheck": "bun run --filter '*' typecheck"
+    "typecheck": "bun run --filter '*' typecheck",
+    "infra:up": "docker-compose -f docker-compose.dev.yml up -d",
+    "infra:down": "docker-compose -f docker-compose.dev.yml down",
+    "infra:logs": "docker-compose -f docker-compose.dev.yml logs -f",
+    "infra:ps": "docker-compose -f docker-compose.dev.yml ps",
+    "infra:restart": "docker-compose -f docker-compose.dev.yml restart",
+    "infra:clean": "docker-compose -f docker-compose.dev.yml down -v"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
