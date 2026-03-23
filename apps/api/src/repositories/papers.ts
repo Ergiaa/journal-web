@@ -1,7 +1,21 @@
 import { eq, and, gte, lte, SQL, sql, asc, desc, inArray, count } from 'drizzle-orm'
 import { db } from '../config/database'
 import { papers, type Paper as DbPaper, type NewPaper } from '../db/schema'
+import * as cache from '../lib/cache'
 import type { Paper, SearchParams, SearchResult, Facets, FacetItem } from '../types'
+
+function hashSearchParams(params: SearchParams): string {
+  // Simple hash for cache key - using JSON.stringify is sufficient for now
+  // In production, consider using a proper hash function for longer param strings
+  const str = JSON.stringify(params)
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return hash.toString(36)
+}
 
 function mapDbPaper(paper: DbPaper): Paper {
   return {
@@ -60,13 +74,26 @@ function computeFacetsFromRows(rows: DbPaper[]): Facets {
 
 export const papersRepository = {
   async findById(id: string): Promise<Paper | null> {
+    // Try cache first
+    const cached = await cache.get<Paper>({ type: 'paper', id })
+    if (cached) return cached
+
     const result = await db.query.papers.findFirst({
       where: eq(papers.id, id),
     })
-    return result ? mapDbPaper(result) : null
+    const paper = result ? mapDbPaper(result) : null
+
+    // Cache the result (even null to prevent repeated misses)
+    await cache.set({ type: 'paper', id }, paper)
+    return paper
   },
 
   async findMany(params: SearchParams): Promise<SearchResult> {
+    // Try cache first
+    const searchHash = hashSearchParams(params)
+    const cached = await cache.get<SearchResult>({ type: 'search', hash: searchHash })
+    if (cached) return cached
+
     const {
       q,
       page = 1,
@@ -164,16 +191,24 @@ export const papersRepository = {
       years: finalFacets.years,
     }
 
-    return {
+    const result: SearchResult = {
       papers: paginatedRows.map(mapDbPaper),
       total,
       page,
       pageSize,
       facets,
     }
+
+    // Cache the search result
+    await cache.set({ type: 'search', hash: searchHash }, result)
+    return result
   },
 
   async findRelated(id: string, limit: number = 5): Promise<Paper[]> {
+    // Try cache first
+    const cached = await cache.get<Paper[]>({ type: 'related', id, limit })
+    if (cached) return cached
+
     const target = await papersRepository.findById(id)
     if (!target) return []
 
@@ -195,7 +230,10 @@ export const papersRepository = {
       )
     }
 
-    if (orParts.length === 0) return []
+    if (orParts.length === 0) {
+      await cache.set({ type: 'related', id, limit }, [])
+      return []
+    }
 
     conditions.push(sql`(${sql.join(orParts, sql` OR `)})`)
 
@@ -204,17 +242,25 @@ export const papersRepository = {
       limit,
     })
 
-    return results.map(mapDbPaper)
+    const relatedPapers = results.map(mapDbPaper)
+    await cache.set({ type: 'related', id, limit }, relatedPapers)
+    return relatedPapers
   },
 
   async getAvailableJournals(): Promise<string[]> {
+    // Try cache first
+    const cached = await cache.get<string[]>({ type: 'journals' })
+    if (cached) return cached
+
     const rows = await db
       .selectDistinct({ journal: papers.journal })
       .from(papers)
       .where(sql`${papers.journal} IS NOT NULL`)
       .orderBy(asc(papers.journal))
 
-    return rows.map(r => r.journal).filter(Boolean) as string[]
+    const journals = rows.map(r => r.journal).filter(Boolean) as string[]
+    await cache.set({ type: 'journals' }, journals)
+    return journals
   },
 
   async create(data: Omit<NewPaper, 'id' | 'created_at'>): Promise<Paper> {
@@ -222,6 +268,9 @@ export const papersRepository = {
       .insert(papers)
       .values(data)
       .returning()
+
+    // Invalidate search and journal caches on new data
+    await cache.invalidateSearchCache()
 
     return mapDbPaper(result)
   },
@@ -231,6 +280,9 @@ export const papersRepository = {
       .insert(papers)
       .values(dataArray)
       .returning()
+
+    // Invalidate search and journal caches on new data
+    await cache.invalidateSearchCache()
 
     return results.map(mapDbPaper)
   },

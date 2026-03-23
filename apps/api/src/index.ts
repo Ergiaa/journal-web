@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
 import { sql } from 'drizzle-orm'
-import { db } from './config/database'
+import { db, checkRedisConnection } from './config'
 import { papersRoutes, journalsRoutes } from './routes/papers'
 
 async function checkDatabaseConnection(): Promise<boolean> {
@@ -16,13 +16,17 @@ async function checkDatabaseConnection(): Promise<boolean> {
 // Health check route
 const healthRoutes = new Elysia({ prefix: '/health' })
   .get('/', async () => {
-    const dbHealthy = await checkDatabaseConnection()
+    const [dbHealthy, redisHealthy] = await Promise.all([
+      checkDatabaseConnection(),
+      checkRedisConnection(),
+    ])
+    const allHealthy = dbHealthy && redisHealthy
     return {
-      status: dbHealthy ? 'healthy' : 'unhealthy',
+      status: allHealthy ? 'healthy' : 'degraded',
       timestamp: new Date().toISOString(),
       services: {
         database: dbHealthy ? 'connected' : 'disconnected',
-        redis: 'disconnected',
+        redis: redisHealthy ? 'connected' : 'disconnected',
         ml_service: 'disconnected',
       },
     }
