@@ -8,6 +8,13 @@
       "when": 1774209843333,
       "tag": "0000_yummy_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774228963547,
+      "tag": "0001_premium_darkstar",
+      "breakpoints": true
     }
   ]
 }

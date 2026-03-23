@@ -3,6 +3,7 @@ import { cors } from '@elysiajs/cors'
 import { sql } from 'drizzle-orm'
 import { db, checkRedisConnection } from './config'
 import { papersRoutes, journalsRoutes } from './routes/papers'
+import { adminRoutes } from './routes/admin'
 
 async function checkDatabaseConnection(): Promise<boolean> {
   try {
@@ -41,6 +42,7 @@ const app = new Elysia()
   .use(healthRoutes)
   .use(papersRoutes)
   .use(journalsRoutes)
+  .use(adminRoutes)
   .get('/', () => 'Journal Web API is running!')
   .listen(3001)
 
